@@ -1,0 +1,32 @@
+// Define pin numbers
+const int buttonPin = 2;  // Pin for the pushbutton
+const int ledPin = 13;    // Pin for the LED
+
+// Variable to store button state
+int buttonState = 0;
+
+void setup() {
+  // Initialize LED pin as output
+  pinMode(ledPin, OUTPUT);
+  
+  // Initialize button pin as input with pull-up resistor
+  pinMode(buttonPin, INPUT_PULLUP);
+  
+  // Optional: Start serial for debugging (remove if not needed)
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Read the state of the button (LOW when pressed due to pull-up)
+  buttonState = digitalRead(buttonPin);
+  
+  // If button is pressed (LOW), turn LED on
+  if (buttonState == LOW) {
+    digitalWrite(ledPin, HIGH);  // LED ON
+    Serial.println("Button pressed: LED ON");
+  }else {
+    digitalWrite(ledPin, LOW);
+  }
+  
+  delay(50);
+}
