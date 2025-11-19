@@ -1,21 +1,16 @@
-// Define pin numbers
-const int buttonPin = 2;  // Pin for the pushbutton
-const int led1Pin = 13;   // Pin for LED 1
-const int led2Pin = 12;   // Pin for LED 2
+const int buttonPin = 2;
+const int led1Pin = 13;
+const int led2Pin = 12;
 
 // Variable to store button state
 int buttonState = 0;
 
 void setup() {
-  // Initialize LED pins as outputs
   pinMode(led1Pin, OUTPUT);
   pinMode(led2Pin, OUTPUT);
   
   // Initialize button pin as input with pull-up resistor
   pinMode(buttonPin, INPUT_PULLUP);
-  
-  // Optional: Start serial for debugging (remove if not needed)
-  Serial.begin(9600);
 }
 
 void loop() {
@@ -26,15 +21,12 @@ void loop() {
   if (buttonState == LOW) {
     digitalWrite(led1Pin, HIGH);  // LED 1 ON
     digitalWrite(led2Pin, LOW);   // LED 2 OFF
-    Serial.println("Button pressed: LED 1 ON, LED 2 OFF");
   }
   // If button is released (HIGH)
   else {
     digitalWrite(led1Pin, LOW);   // LED 1 OFF
     digitalWrite(led2Pin, HIGH);  // LED 2 ON
-    Serial.println("Button released: LED 1 OFF, LED 2 ON");
   }
   
-  // Small delay to debounce the button (prevents flickering)
   delay(50);
 }
