@@ -11,9 +11,7 @@ void setup() {
   
   // Initialize button pin as input with pull-up resistor
   pinMode(buttonPin, INPUT_PULLUP);
-  
-  // Optional: Start serial for debugging (remove if not needed)
-  Serial.begin(9600);
+
 }
 
 void loop() {
