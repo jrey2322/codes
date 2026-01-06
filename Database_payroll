@@ -1,0 +1,24 @@
+-- Create database
+CREATE DATABASE payroll_db;
+
+-- Use the database
+USE payroll_db;
+
+-- Employees table
+CREATE TABLE employees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    hourly_rate DECIMAL(10,2) NOT NULL
+);
+
+-- Payroll records table
+CREATE TABLE payroll (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT NOT NULL,
+    hours_worked DECIMAL(5,2) NOT NULL,
+    gross_pay DECIMAL(10,2) NOT NULL,
+    tax_deduction DECIMAL(10,2) NOT NULL,
+    net_pay DECIMAL(10,2) NOT NULL,
+    pay_date DATE NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(id)
+);
