@@ -1,4 +1,4 @@
-1<?php
+<?php
 // Database connection
 $servername = "localhost";
 $username = "root"; // Change to your DB username
@@ -17,9 +17,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hourly_rate = $_POST['hourly_rate'];
         $sql = "INSERT INTO employees (name, hourly_rate) VALUES ('$name', '$hourly_rate')";
         if ($conn->query($sql) === TRUE) {
-            echo "<p>Employee added successfully!</p>";
+            echo "<p class='success'>Employee added successfully!</p>";
         } else {
-            echo "<p>Error: " . $sql . "<br>" . $conn->error . "</p>";
+            echo "<p class='error'>Error: " . $sql . "<br>" . $conn->error . "</p>";
         }
     } elseif (isset($_POST['calculate_payroll'])) {
         $employee_id = $_POST['employee_id'];
@@ -35,6 +35,175 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $gross_pay = $hours_worked * $hourly_rate;
             $tax_deduction = $gross_pay * 0.20; // 20% tax
             $net_pay = $gross_pay - $tax_deduction;
+            
+            // Insert payroll record
+            $sql = "INSERT INTO payroll (employee_id, hours_worked, gross_pay, tax_deduction, net_pay, pay_date) 
+                    VALUES ($employee_id, $hours_worked, $gross_pay, $tax_deduction, $net_pay, '$pay_date')";
+            if ($conn->query($sql) === TRUE) {
+                echo "<p class='success'>Payroll calculated and saved!</p>";
+            } else {
+                echo "<p class='error'>Error: " . $sql . "<br>" . $conn->error . "</p>";
+            }
+        } else {
+            echo "<p class='error'>Employee not found.</p>";
+        }
+    }
+}
+
+// Fetch employees for dropdown
+$employees = $conn->query("SELECT id, name FROM employees");
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Payroll System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        form {
+            margin-bottom: 30px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+            text-align: center;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payroll System</h1>
+        
+        <!-- Add Employee Form -->
+        <h2>Add Employee</h2>
+        <form method="post">
+            <label>Name: <input type="text" name="name" required></label>
+            <label>Hourly Rate: <input type="number" step="0.01" name="hourly_rate" required></label>
+            <button type="submit" name="add_employee">Add Employee</button>
+        </form>
+        
+        <!-- Calculate Payroll Form -->
+        <h2>Calculate Payroll</h2>
+        <form method="post">
+            <label>Employee: 
+                <select name="employee_id" required>
+                    <option value="">Select Employee</option>
+                    <?php while ($row = $employees->fetch_assoc()): ?>
+                        <option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
+                    <?php endwhile; ?>
+                </select>
+            </label>
+            <label>Hours Worked: <input type="number" step="0.01" name="hours_worked" required></label>
+            <label>Pay Date: <input type="date" name="pay_date" required></label>
+            <button type="submit" name="calculate_payroll">Calculate and Save Payroll</button>
+        </form>
+        
+        <!-- View Payroll Records -->
+        <h2>Payroll Records</h2>
+        <table>
+            <tr>
+                <th>Employee</th>
+                <th>Hours Worked</th>
+                <th>Gross Pay</th>
+                <th>Tax Deduction</th>
+                <th>Net Pay</th>
+                <th>Pay Date</th>
+            </tr>
+            <?php
+            $records = $conn->query("SELECT e.name, p.hours_worked, p.gross_pay, p.tax_deduction, p.net_pay, p.pay_date 
+                                     FROM payroll p JOIN employees e ON p.employee_id = e.id");
+            while ($row = $records->fetch_assoc()): ?>
+                <tr>
+                    <td><?php echo $row['name']; ?></td>
+                    <td><?php echo $row['hours_worked']; ?></td>
+                    <td>$<?php echo number_format($row['gross_pay'], 2); ?></td>
+                    <td>$<?php echo number_format($row['tax_deduction'], 2); ?></td>
+                    <td>$<?php echo number_format($row['net_pay'], 2); ?></td>
+                    <td><?php echo $row['pay_date']; ?></td>
+                </tr>
+            <?php endwhile; ?>
+        </table>
+    </div>
+    
+    <?php $conn->close(); ?>
+</body>
+</html>            $net_pay = $gross_pay - $tax_deduction;
             
             // Insert payroll record
             $sql = "INSERT INTO payroll (employee_id, hours_worked, gross_pay, tax_deduction, net_pay, pay_date) 
